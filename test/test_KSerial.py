@@ -66,7 +66,7 @@ class FrameTestCase(unittest.TestCase):
         self.encoded_telemetry_frame = [0x7E, 0x71, 0x7F, 0x54, 0xAF, 0x36, 0x85, 0xAB, 0x7D, 0x5E, 0x53, 0xE5, 0xA0]
 
         self.ack_frame = AcknowledgementFrame()
-
+        self.encoded_ack_frame = [0x7E, 0xAC, 0x1F]
 
     def test_simple_command_frame_decode(self):
         test_collector = KoalaFrameCollector()
@@ -82,12 +82,28 @@ class FrameTestCase(unittest.TestCase):
         for item in self.encoded_telemetry_frame:
             test_collector.read_byte(item)
         result_decoded_frame = test_collector.generate_frame()
-        print type(result_decoded_frame)
         self.assertTrue(isinstance(result_decoded_frame, TelemetryFrame))
         self.assertEqual(self.telemetry_frame.time, result_decoded_frame.time)
         self.assertEqual(self.telemetry_frame.data, result_decoded_frame.data)
 
+    def test_simple_ack_frame_decode(self):
+        test_collector = KoalaFrameCollector()
+        for item in self.encoded_ack_frame:
+            test_collector.read_byte(item)
+        result_decoded_frame = test_collector.generate_frame()
+        self.assertTrue(isinstance(result_decoded_frame, AcknowledgementFrame))
+
+    def test_simple_command_frame_encode(self):
+        serialized_result = KoalaFrameProducer.serialize_frame(self.command_frame)
+        self.assertEqual(serialized_result, self.encoded_command_frame)
+
+    def test_simple_telemetry_frame_encode(self):
+        serialized_result = KoalaFrameProducer.serialize_frame(self.telemetry_frame)
+        self.assertEqual(serialized_result, self.encoded_telemetry_frame)
+
+    def test_simple_ack_frame_encode(self):
+        serialized_result = KoalaFrameProducer.serialize_frame(self.ack_frame)
+        self.assertEqual(serialized_result, self.encoded_ack_frame)
 
 if __name__ == '__main__':
     unittest.main()
-

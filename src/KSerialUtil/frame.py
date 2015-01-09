@@ -1,8 +1,9 @@
 __author__ = 'yilu'
 
-from coder import *
+from coder import RFC1662Encoder, RFC1662Decoder
 from enum import Enum
 import datetime
+import time
 
 
 class KoalaFrameType(Enum):
@@ -129,7 +130,7 @@ class KoalaFrameCollector:
         :return: A KoalaBaseFrame or subclasses
         """
         raw_data = self.decoder.get_result()
-        if len(raw_data) <= 2:
+        if len(raw_data) < 2:
             print "length of bytes is too short"
             return KoalaBaseFrame()
 
@@ -182,7 +183,6 @@ class KoalaFrameCollector:
 
 
 class KoalaFrameProducer:
-    # TODO: Testing
     def __init__(self):
         pass
 
@@ -204,8 +204,9 @@ class KoalaFrameProducer:
             data_to_be_encoded[1] = data_type & 0xFF
             data_type >>= 8
             data_to_be_encoded[0] = data_type & 0xFF
-            time = UnixTimestampTo4BytesConvertor.unix_timestamp_to_four_bytes(frame.time)
-            data_to_be_encoded += time
+            int_repre_of_time = int(time.mktime(frame.time.timetuple()))
+            timestamp = UnixTimestampTo4BytesConvertor.unix_timestamp_to_four_bytes(int_repre_of_time)
+            data_to_be_encoded += timestamp
             data_to_be_encoded += frame.data
             return RFC1662Encoder.encode_byte_array(data_to_be_encoded)
 
