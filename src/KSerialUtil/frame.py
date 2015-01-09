@@ -60,6 +60,35 @@ Frame collector and producer, used to construct a frame from data or serialize a
 '''
 
 
+class UnixTimestampTo4BytesConvertor:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def unix_timestamp_to_four_bytes(timestamp):
+        four_bytes = [0x00] * 4
+        four_bytes[3] = timestamp & 0xFF
+        timestamp >>= 8
+        four_bytes[2] = timestamp & 0xFF
+        timestamp >>= 8
+        four_bytes[1] = timestamp & 0xFF
+        timestamp >>= 8
+        four_bytes[0] = timestamp & 0xFF
+        return four_bytes
+
+    @staticmethod
+    def four_bytes_to_unix_timestamp(four_bytes):
+        if not isinstance(four_bytes, list):
+            raise TypeError("four_bytes need to be a list")
+        if len(four_bytes) != 4:
+            raise Exception("four_bytes is not actually list of four")
+
+        time_data = (four_bytes[0] << 8) + four_bytes[1]
+        time_data = (time_data << 8) + four_bytes[2]
+        time_data = (time_data << 8) + four_bytes[3]
+        return time_data
+
+
 class KoalaFrameCollector:
     def __init__(self):
         self.frame_type = KoalaFrameType.base_frame
@@ -123,9 +152,7 @@ class KoalaFrameCollector:
             if len(raw_data) <= 6:
                 print "Premature data, length = {0}, expecting minimum length = 7".format(len(raw_data))
                 return frame
-            time_data = (raw_data[2] << 8) + raw_data[3]
-            time_data = (time_data << 8) + raw_data[4]
-            time_data = (time_data << 8) + raw_data[5]
+            time_data = UnixTimestampTo4BytesConvertor.four_bytes_to_unix_timestamp(raw_data[2:6])
             frame.set_time(time_data)
             frame.data = raw_data[6:]
             return frame
@@ -155,6 +182,40 @@ class KoalaFrameCollector:
 
 
 class KoalaFrameProducer:
-    # TODO: Implementation!
+    # TODO: Testing
     def __init__(self):
-        raise NotImplementedError("Producer not implemented yet")
+        pass
+
+    @staticmethod
+    def serialize_frame(frame):
+        if isinstance(frame, CommandFrame):
+            data_type = KoalaFrameDataType.command_frame_type
+            data_to_be_encoded = [0x00] * 2
+            data_to_be_encoded[1] = data_type & 0xFF
+            data_type >>= 8
+            data_to_be_encoded[0] = data_type & 0xFF
+            data_to_be_encoded += frame.payload
+            data_to_be_encoded += frame.CRC
+            return RFC1662Encoder.encode_byte_array(data_to_be_encoded)
+
+        elif isinstance(frame, TelemetryFrame):
+            data_type = KoalaFrameDataType.telemetry_frame_type
+            data_to_be_encoded = [0x00] * 2
+            data_to_be_encoded[1] = data_type & 0xFF
+            data_type >>= 8
+            data_to_be_encoded[0] = data_type & 0xFF
+            time = UnixTimestampTo4BytesConvertor.unix_timestamp_to_four_bytes(frame.time)
+            data_to_be_encoded += time
+            data_to_be_encoded += frame.data
+            return RFC1662Encoder.encode_byte_array(data_to_be_encoded)
+
+        elif isinstance(frame, AcknowledgementFrame):
+            data_type = KoalaFrameDataType.acknowledgement_frame
+            data_to_be_encoded = [0x00] * 2
+            data_to_be_encoded[1] = data_type & 0xFF
+            data_type >>= 8
+            data_to_be_encoded[0] = data_type & 0xFF
+            return RFC1662Encoder.encode_byte_array(data_to_be_encoded)
+
+        else:
+            raise TypeError("Unrecognized frame type")
