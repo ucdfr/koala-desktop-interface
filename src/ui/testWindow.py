@@ -1,7 +1,7 @@
 import sys
 from PyQt4 import QtCore, QtGui, uic
 
-form_class = uic.loadUiType("testUI.ui")[0]                 # Load the UI
+form_class = uic.loadUiType("ui/testUI.ui")[0]                 # Load the UI
 
 class MyWindowClass(QtGui.QMainWindow, form_class):
     def __init__(self, parent=None):
@@ -29,7 +29,7 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
     def textChanged(self):
         self.label.setText(self.text.toPlainText())
 
-app = QtGui.QApplication(sys.argv)
-myWindow = MyWindowClass(None)
-myWindow.show()
-app.exec_()
+# app = QtGui.QApplication(sys.argv)
+# myWindow = MyWindowClass(None)
+# myWindow.show()
+# app.exec_()

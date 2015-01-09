@@ -8,6 +8,7 @@ setup(name='Koala',
       install_requires=[
         "virtualenv",
         "pyserial",
+        "enum",
         "minimalmodbus",
         "twisted",
         "autobahn"
