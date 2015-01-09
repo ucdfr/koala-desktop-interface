@@ -21,6 +21,17 @@ class RFC1662Encoder:
 
     @staticmethod
     def encode_byte_array(data):
+        """
+        This method is static and doesn't require an instance of encoder, will encode the message in RFC1662 format.
+        Will raise TypeError if illegal data is fed
+
+        :param data: list of bytes to be encoded
+        :return: list of encoded bytes
+        """
+
+        if not type(data) is list:
+            raise TypeError("next_bytes need to be a list")
+
         result = [RFC1662Flags.begin_flag]
         for item in data:
             if item == RFC1662Flags.begin_flag or item == RFC1662Flags.escape_flag:
@@ -84,11 +95,17 @@ class RFC1662Decoder:
     def finish(self):
         """
         Force decoder to finish
+
         :return: None
         """
         self.state = RFC1662DecoderStates.decode_done
 
     def decode_done(self):
+        """
+        Getter for querying the decoder to see if the decoding has concluded
+
+        :return: True if decoding is done, vice versa
+        """
         if self.state == RFC1662DecoderStates.decode_done:
             return True
         else:
@@ -97,6 +114,7 @@ class RFC1662Decoder:
     def get_result(self):
         """
         This function will terminate decoding, reset the decoder, and return the decoded values
+
         :return: decoding result in a list
         """
         self.finish()
@@ -105,6 +123,12 @@ class RFC1662Decoder:
         return decoded
 
     def reset(self):
+        """
+        Reset the decoder to initial state, useful after the previous decoding is finished and want to start decoding
+        a new message
+
+        :return: None
+        """
         self.state = RFC1662DecoderStates.decode_not_started
         self.should_escape_flag = False
         self.result = []
