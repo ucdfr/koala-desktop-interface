@@ -7,10 +7,11 @@ import time
 import serial
 # from serial.tools import list_ports
 
-from src.AsyncCall import Async
+from .. import AsyncCall
 
 
 class XBeeConnector:
+    # TODO: Handle connection lost scenario
     def __init__(self):
         self.data_arrive_callback = None
         self.device_name = None
@@ -73,9 +74,9 @@ class XBeeConnector:
         else:
             serial_connection.close()
 
-    @Async
+    @AsyncCall.Async
     def __bind_device(self):
-        print "Start XBee cool down count from 10"
+        print "Starting XBee cooling count down from 10"
         for t in range(10):
             print "{0} mississippi...".format(10 - t)
             time.sleep(1)   # Wait for 10 seconds so the XBee will exit command mode
@@ -88,13 +89,14 @@ class XBeeConnector:
     def __poll_loop(self):
         while True:
             data = self.serial_connection.readline()
-            self.__data_received(data)
+            if data is not None:
+                self.__data_received(data)
 
     def __data_received(self, data):
         if self.data_arrive_callback is not None:
             self.data_arrive_callback(data)
 
-    @Async
+    @AsyncCall.Async
     def __send_test_signal(self, device, callback):
         ser = serial.Serial(device, 115200, timeout=1)
         ser.bytesize = serial.EIGHTBITS

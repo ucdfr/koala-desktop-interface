@@ -1,7 +1,6 @@
 __author__ = 'yilu'
-from src.ui.testWindow import MyWindowClass
 
 
-class Foo:
+class KSerial:
     def __init__(self):
-        print 'Foo created'
+        pass
