@@ -5,6 +5,7 @@ import unittest
 import env
 from src.KSerialUtil.coder import RFC1662Encoder, RFC1662Decoder
 from src.KSerialUtil.frame import *
+from src.KSerialUtil.XBeeConnector import *
 
 
 class EncoderDecoderTestCase(unittest.TestCase):
@@ -104,6 +105,16 @@ class FrameTestCase(unittest.TestCase):
     def test_simple_ack_frame_encode(self):
         serialized_result = KoalaFrameProducer.serialize_frame(self.ack_frame)
         self.assertEqual(serialized_result, self.encoded_ack_frame)
+
+
+class XBeeConnectorTestCase(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def test_connector(self):
+        conn = XBeeConnector()
+        conn.init()
+        # conn.list_port()
 
 if __name__ == '__main__':
     unittest.main()

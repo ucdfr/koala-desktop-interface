@@ -1,4 +1,5 @@
 __author__ = 'yilu'
+from src.ui.testWindow import MyWindowClass
 
 
 class Foo:

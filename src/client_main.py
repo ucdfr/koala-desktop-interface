@@ -4,7 +4,7 @@ __author__ = 'yilu'
 import sys
 
 from PyQt4 import QtGui
-from server.KoalaServerFactory import KoalaWebSocketServerFactory
+from server.KoalaServerWebSocket import KoalaWebSocketServerFactory
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

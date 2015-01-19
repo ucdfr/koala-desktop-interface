@@ -1,7 +1,7 @@
 __author__ = 'yilu'
 
 import sys
-from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
+from autobahn.twisted.websocket import WebSocketServerProtocol
 
 from twisted.python import log
 
@@ -28,15 +28,3 @@ class KoalaWebSocketProtocol(WebSocketServerProtocol):
     def onClose(self, wasClean, code, reason):
         print "WebSocket connection closed: {0}".format(reason)
 
-
-class KoalaWebSocketServerFactory:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def produce(reactor):
-        log.startLogging(sys.stdout)
-        factory = WebSocketServerFactory("ws://localhost:9000", debug=False)
-        factory.protocol = KoalaWebSocketProtocol
-        port = reactor.listenTCP(9000, factory)
-        return port
