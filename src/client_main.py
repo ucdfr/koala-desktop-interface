@@ -1,10 +1,17 @@
-from src import KoalaMainWindow
+# from src import KoalaMainWindow
 
 __author__ = 'yilu'
 import sys
+import signal
 
 from PyQt4 import QtGui
-from server.KoalaServerWebSocket import KoalaWebSocketServerFactory
+from client.KoalaMainWindow import *
+
+
+def signal_handler(_signal, _frame):
+    myWindow.close()
+    reactor.stop()
+    sys.exit(0)
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
@@ -19,8 +26,10 @@ if __name__ == "__main__":
     from twisted.internet import reactor
 
 
-    server = KoalaWebSocketServerFactory.produce(reactor)
-    myWindow = KoalaMainWindow(reactor, server)
+    # server = KoalaWebSocketServerFactory.produce(reactor)
+    # myWindow = KoalaMainWindow(reactor, server)
+
+    myWindow = KoalaMain(reactor)
     myWindow.show()
     reactor.run()
-    # app.exec_()
+    signal.signal(signal.SIGINT, signal_handler)

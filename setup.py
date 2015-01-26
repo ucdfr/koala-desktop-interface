@@ -11,6 +11,7 @@ setup(name='Koala',
         "enum",
         "minimalmodbus",
         "twisted",
-        "autobahn"
+        "autobahn",
+        "numpy"
     ]
      )
