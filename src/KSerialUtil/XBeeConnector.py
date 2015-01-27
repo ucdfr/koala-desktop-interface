@@ -7,7 +7,7 @@ import time
 import serial
 # from serial.tools import list_ports
 
-from .. import AsyncCall
+import AsyncCall
 
 
 class XBeeConnector:

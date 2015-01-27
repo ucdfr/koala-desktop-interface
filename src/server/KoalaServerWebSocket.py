@@ -6,7 +6,7 @@ from autobahn.twisted.websocket import WebSocketServerProtocol
 from twisted.python import log
 
 
-class KoalaWebSocketProtocol(WebSocketServerProtocol):
+class KoalaWebSocketServerProtocol(WebSocketServerProtocol):
     def __init__(self):
         pass
 

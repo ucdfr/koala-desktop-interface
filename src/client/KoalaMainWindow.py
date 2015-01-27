@@ -5,6 +5,7 @@ import sys
 import PyQt4.Qwt5 as Qwt
 
 import KoalaMainServerStatusDisplay
+import dialog.ChooseServerDialog
 
 
 class KoalaMain(QMainWindow):
@@ -14,6 +15,7 @@ class KoalaMain(QMainWindow):
         self.resize(800, 600)
         self.__create_main_frame()
         self.__create_menu()
+        self.web_socket_service = None
 
     def __create_menu(self):
         menu_bar = self.menuBar()
@@ -34,15 +36,15 @@ class KoalaMain(QMainWindow):
         server_menu = menu_bar.addMenu('&Server')
         connect_to_server_action = QAction("Connect to server...", self)
         connect_to_server_action.setStatusTip("Connect to a server")
-        # connect_to_server_action.triggered.connect(None)
+        connect_to_server_action.triggered.connect(self.__connect_to_server)
         server_menu.addAction(connect_to_server_action)
 
     def __create_main_frame(self):
         self.main_tab = QTabWidget()
-        self.status_tab = KoalaMainServerStatusDisplay.ServerStatusDisplay()
-        self.status_tab.set_host("0.0.0.0")
+        self.server_status_tab = KoalaMainServerStatusDisplay.ServerStatusDisplay()
+        self.server_status_tab.set_host(host="LOL")
         # host_label
-        self.main_tab.addTab(self.status_tab, "Server Status (Alt+1)")
+        self.main_tab.addTab(self.server_status_tab, "Server Status (Alt+1)")
         self.tab_2 = QWidget()
         self.main_tab.addTab(self.tab_2, "Throttle Status (Alt+2)")
         self.tab_3 = QWidget()
@@ -56,6 +58,10 @@ class KoalaMain(QMainWindow):
         self.close()
         self.reactor.stop()
 
+    def __connect_to_server(self):
+        if self.web_socket_service is not None:
+            self.web_socket_service.start_service()
+
     def keyPressEvent(self, QKeyEvent):
         modifier = QApplication.keyboardModifiers()
         if modifier == Qt.AltModifier:
@@ -67,3 +73,17 @@ class KoalaMain(QMainWindow):
                 self.main_tab.setCurrentIndex(2)
             QKeyEvent.accept()
 
+    def update_server_status(self, connected, host, port):
+        if connected:
+            self.server_status_tab.set_server_state(KoalaMainServerStatusDisplay.KoalaServerStatusDisplayConnectionStatus.connected)
+        else:
+            self.server_status_tab.set_server_state(KoalaMainServerStatusDisplay.KoalaServerStatusDisplayConnectionStatus.notConnected)
+
+
+    @property
+    def webSocketService(self):
+        return self.web_socket_service
+
+    @webSocketService.setter
+    def webSocketService(self, value):
+        self.web_socket_service = value

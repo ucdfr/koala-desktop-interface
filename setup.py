@@ -12,6 +12,7 @@ setup(name='Koala',
         "minimalmodbus",
         "twisted",
         "autobahn",
-        "numpy"
+        "numpy",
+        "PyQt4"
     ]
      )

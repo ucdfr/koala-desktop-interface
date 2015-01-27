@@ -1,7 +1,7 @@
 __author__ = 'yilu'
 from twisted.web import resource
 
-class KoalaTCPResource(resource.Resource):
+class KoalaTCPServerResource(resource.Resource):
 
     def LOL(self, request):
         pass
