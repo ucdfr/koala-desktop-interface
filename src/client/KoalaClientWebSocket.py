@@ -2,30 +2,45 @@ __author__ = 'yilu'
 
 from twisted.application import service
 from autobahn.twisted.websocket import WebSocketClientFactory, WebSocketClientProtocol
+import json
+
+my_service = None
 
 
 class KoalaWebSocketClientProtocol(WebSocketClientProtocol):
     def __init__(self):
-        self.main_UI = None
+        pass
+        # self.main_UI = None
 
     def onConnect(self, response):
         print "Connecting..."
 
     def onOpen(self):
         print "Opening..."
-        self.main_UI.update_server_status(True, "localhost", 9000)
+        if my_service:
+            my_service.connection_established()
 
     def onMessage(self, payload, isBinary):
-        print "got message"
+        packet = json.loads(payload)
+        if my_service:
+            my_service.got_data(packet)
 
-    @property
-    def main_UI(self):
-        return self.main_UI
+    def onClose(self, wasClean, code, reason):
+        if my_service:
+            my_service.connection_lost()
 
-    @main_UI.setter
-    def main_UI(self, value):
-        print "protocol setting main ui"
-        self.main_UI = value
+
+class KoalaWebSocketClientFactory(WebSocketClientFactory):
+    def __init__(self, *args, **kwargs):
+        WebSocketClientFactory.__init__(self, *args, **kwargs)
+
+    def buildProtocol(self, addr):
+        protocol = KoalaWebSocketClientProtocol()
+        protocol.factory = self
+        return protocol
+
+    # def stopFactory(self):
+    #     self.protocol.close()
 
 
 class KoalaWebSocketService(service.Service):
@@ -35,21 +50,33 @@ class KoalaWebSocketService(service.Service):
         self.port = port
         self.debug = debug
         self.factory = None
-        self.listener = None
+        self.connector = None
         self.main_UI = None
+        global my_service
+        my_service = self
 
     def start_service(self):
         print "ws://%s:%d" % (self.site, self.port)
-        self.factory = WebSocketClientFactory("ws://%s:%d" % (self.site, self.port), debug=self.debug)
-        self.factory.protocol = KoalaWebSocketClientProtocol
+        self.factory = KoalaWebSocketClientFactory("ws://%s:%d" % (self.site, self.port), debug=self.debug, reactor=self.reactor)
+        # self.factory.protocol = KoalaWebSocketClientProtocol
+        # self.factory.protocol = WebSocketClientProtocol
         # factory.startFactory()
-        self.listener = self.reactor.connectTCP(self.site, self.port, self.factory)
+        self.connector = self.reactor.connectTCP(self.site, self.port, self.factory)
 
     def stop_service(self):
-        print "Shutting down client"
-        self.factory.protocol.sendClose()
-        self.factory.stopFactory()
-        self.listener.stopListening()
+        print "\nShutting down client"
+        # self.connector.stopFactory()
+        if self.connector:
+            self.connector.disconnect()
+
+    def got_data(self, packet):
+        self.main_UI.got_message_from_server(packet)
+
+    def connection_established(self):
+        self.main_UI.update_server_status(connected=True, host=self.site, port=self.port)
+
+    def connection_lost(self):
+        self.main_UI.update_server_status(connected=False, host="0.0.0.0", port="00")
 
     @property
     def main_UI(self):

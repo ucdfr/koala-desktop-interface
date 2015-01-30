@@ -4,7 +4,8 @@ import sys
 
 import PyQt4.Qwt5 as Qwt
 
-import KoalaMainServerStatusDisplay
+import KoalaMainServerStatusTag
+import KoalaThrottlePositionTag
 import dialog.ChooseServerDialog
 
 
@@ -41,12 +42,12 @@ class KoalaMain(QMainWindow):
 
     def __create_main_frame(self):
         self.main_tab = QTabWidget()
-        self.server_status_tab = KoalaMainServerStatusDisplay.ServerStatusDisplay()
-        self.server_status_tab.set_host(host="LOL")
+        self.server_status_tab = KoalaMainServerStatusTag.ServerStatusTag()
+        self.server_status_tab.set_host(host="0.0.0.0:00")
         # host_label
         self.main_tab.addTab(self.server_status_tab, "Server Status (Alt+1)")
-        self.tab_2 = QWidget()
-        self.main_tab.addTab(self.tab_2, "Throttle Status (Alt+2)")
+        self.throttle_pos_tag = KoalaThrottlePositionTag.ThrottlePositionTag(reactor=self.reactor)
+        self.main_tab.addTab(self.throttle_pos_tag, "Throttle Status (Alt+2)")
         self.tab_3 = QWidget()
         self.main_tab.addTab(self.tab_3, "Battery Status (Alt+3)")
 
@@ -75,9 +76,15 @@ class KoalaMain(QMainWindow):
 
     def update_server_status(self, connected, host, port):
         if connected:
-            self.server_status_tab.set_server_state(KoalaMainServerStatusDisplay.KoalaServerStatusDisplayConnectionStatus.connected)
+            self.server_status_tab.set_server_state(KoalaMainServerStatusTag.KoalaServerStatusDisplayConnectionStatus.connected)
+            self.server_status_tab.set_host("%s:%s" % (host, port))
         else:
-            self.server_status_tab.set_server_state(KoalaMainServerStatusDisplay.KoalaServerStatusDisplayConnectionStatus.notConnected)
+            self.server_status_tab.set_server_state(KoalaMainServerStatusTag.KoalaServerStatusDisplayConnectionStatus.notConnected)
+            self.server_status_tab.set_host("0.0.0.0:00")
+
+    def got_message_from_server(self, packet):
+        if packet["type"] == "throttle":
+            self.throttle_pos_tag.got_new_data(packet)
 
 
     @property

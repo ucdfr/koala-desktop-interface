@@ -12,9 +12,9 @@ class KoalaServerStatusDisplayConnectionStatus(Enum):
         return "KoalaServerStatusDisplayConnectionStatus"
 
 
-class ServerStatusDisplay(QWidget):
+class ServerStatusTag(QWidget):
     def __init__(self):
-        super(ServerStatusDisplay, self).__init__()
+        super(ServerStatusTag, self).__init__()
 
         self.main_layout = QVBoxLayout()
 

@@ -14,7 +14,7 @@ from server.KoalaServerTCP import *
 
 if __name__ == '__main__':
     log.startLogging(sys.stdout)
-    webSocketServer = WebSocketServerFactory("ws://localhost:9000", debug=False)
+    webSocketServer = BroadcastServerFactory(url="ws://localhost:9000", debug=False, reactor=reactor)
     webSocketServer.protocol = KoalaWebSocketServerProtocol
     TCPServer = server.Site(KoalaTCPServerResource())
     TCPPort = reactor.listenTCP(8888, TCPServer)

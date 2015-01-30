@@ -27,15 +27,5 @@ if __name__ == "__main__":
     koala_main_interface.webSocketService = web_socket_service
     web_socket_service.main_UI = koala_main_interface
     koala_main_interface.show()
+    reactor.addSystemEventTrigger('before', 'shutdown', web_socket_service.stop_service)
     reactor.run()
-
-    #TODO: cannot capture SIGINT???
-
-    def signal_handler(_signal, _frame):
-        print "SIGINT captured"
-        web_socket_service.stop_service()
-        koala_main_interface.close()
-        reactor.stop()
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, signal_handler)
