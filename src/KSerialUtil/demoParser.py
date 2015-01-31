@@ -71,7 +71,6 @@ class DemoParser:
             throttle1 = (0xFFFF000000000000 & decoded_payload) >> 48
             throttle2 = (0x0000FFFF00000000 & decoded_payload) >> 32
 
-            print throttle1
-            print throttle2
+            print "Throttle packet detected, throttle 1 = %s, throttle 2 = %s at time %s" % (throttle1, throttle2, decoded_time)
             if self.data_callback:
                 self.data_callback(throttle1, throttle2, decoded_time)
