@@ -46,19 +46,28 @@ class BroadcastServerFactory(WebSocketServerFactory):
     def __init__(self, url, debug=False, debugCodePaths=False, reactor=None):
         WebSocketServerFactory.__init__(self, url, debug=debug, debugCodePaths=debugCodePaths)
         self.clients = []
-        self.tickcount = 0
-        self.send_fake_data()
+        # self.tickcount = 0
+        # self.send_fake_data()
         self.reactor = reactor
 
-    def send_fake_data(self):
-        self.tickcount += 1
+    # def send_fake_data(self):
+    #     self.tickcount += 1
+    #     packet = {
+    #         "data": random.random(),
+    #         "time": self.tickcount,
+    #         "type": "throttle"
+    #     }
+    #     self.broadcast(json.dumps(packet))
+    #     # self.reactor.callLater(1, self.send_fake_data)
+
+    def send_data(self, throttle1, throttle2, time):
+        print "sending data"
         packet = {
-            "data": random.random(),
-            "time": self.tickcount,
-            "type": "throttle"
+            "time": time,
+            "t1": throttle1,
+            "t2": throttle2
         }
-        self.broadcast(json.dumps(packet))
-        self.reactor.callLater(1, self.send_fake_data)
+        self.broadcast(packet)
 
     def register(self, client):
         if not client in self.clients:

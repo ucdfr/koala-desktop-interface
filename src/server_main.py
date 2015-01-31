@@ -5,6 +5,7 @@ from autobahn.twisted.websocket import WebSocketServerFactory
 from twisted.web import server
 from twisted.internet import reactor
 from KSerialUtil import XBeeConnector
+from KSerialUtil import demoParser
 
 from twisted.python import log
 
@@ -19,6 +20,18 @@ if __name__ == '__main__':
     TCPServer = server.Site(KoalaTCPServerResource())
     TCPPort = reactor.listenTCP(8888, TCPServer)
     webSocketPort = reactor.listenTCP(9000, webSocketServer)
+    parser = demoParser.DemoParser()
+
+    def onParsedMessageArrive(throttle1, throttle2, time):
+        webSocketServer.send_data(throttle1, throttle2, time)
+    parser.onDataReady(onParsedMessageArrive)
+
     XBee = XBeeConnector.XBeeConnector()
+
+    def onXBeeMessage(message):
+        parser.parse(message)
+
+    XBee.on_data_arrive(onXBeeMessage)
+
     XBee.init()
     reactor.run()

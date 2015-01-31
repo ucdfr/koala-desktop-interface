@@ -113,8 +113,12 @@ class XBeeConnectorTestCase(unittest.TestCase):
 
     def test_connector(self):
         conn = XBeeConnector()
+
+        def onMessage(message):
+            print XBeeConnector.get_hex_representation(message)
+
+        conn.on_data_arrive(onMessage)
         conn.init()
-        # conn.list_port()
 
 if __name__ == '__main__':
     unittest.main()

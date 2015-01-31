@@ -3,6 +3,7 @@ import sys
 import glob
 import threading
 import time
+import atexit
 
 import serial
 # from serial.tools import list_ports
@@ -26,6 +27,7 @@ class XBeeConnector:
         :returns:
             A list of available serial ports
         """
+        atexit.register(self.__clean_up)
         if sys.platform.startswith('win'):
             ports = ['COM' + str(i + 1) for i in range(256)]
 
@@ -82,9 +84,13 @@ class XBeeConnector:
             time.sleep(1)   # Wait for 10 seconds so the XBee will exit command mode
         print "Binding XBee for data reception"
         self.data_polling_thread = threading.Thread(target=self.__poll_loop)
-        self.data_polling_thread.daemon = True
+        self.data_polling_thread.daemon = False
         self.data_polling_thread.start()
         print "XBee binded on device {0}".format(self.device_name)
+
+    def __clean_up(self):
+        if self.data_polling_thread:
+            self.data_polling_thread._stop.set()
 
     def __poll_loop(self):
         while True:
@@ -93,7 +99,7 @@ class XBeeConnector:
                 self.__data_received(data)
 
     def __data_received(self, data):
-        if self.data_arrive_callback is not None:
+        if self.data_arrive_callback is not None and data != "":
             self.data_arrive_callback(data)
 
     @AsyncCall.Async
