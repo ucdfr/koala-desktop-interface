@@ -21,10 +21,10 @@ class KoalaWebSocketServerProtocol(WebSocketServerProtocol):
         self.factory.register(self)
 
     def onMessage(self, payload, isBinary):
-        if isBinary:
-            print "Binary message received: {0} bytes".format(len(payload))
-        else:
-            print "Text message received: {0}".format(payload.decode('utf8'))
+        # if isBinary:
+        #     print "Binary message received: {0} bytes".format(len(payload))
+        # else:
+        #     print "Text message received: {0}".format(payload.decode('utf8'))
 
         ## echo back message verbatim
         self.sendMessage(payload, isBinary)
@@ -61,11 +61,12 @@ class BroadcastServerFactory(WebSocketServerFactory):
     #     # self.reactor.callLater(1, self.send_fake_data)
 
     def send_data(self, throttle1, throttle2, time):
-        print "sending data"
+        # print "sending data"
         packet = {
             "time": time,
             "t1": throttle1,
-            "t2": throttle2
+            "t2": throttle2,
+            "type": "throttle"
         }
         self.broadcast(packet)
 
@@ -80,7 +81,8 @@ class BroadcastServerFactory(WebSocketServerFactory):
             self.clients.remove(client)
 
     def broadcast(self, msg):
-        print("broadcasting message '{}' ..".format(msg))
+        # print("broadcasting message '{}' ..".format(msg))
         for c in self.clients:
-            c.sendMessage(msg.encode('utf8'))
-            print("message sent to {}".format(c.peer))
+            # c.sendMessage(msg.encode('utf8'))
+            c.sendMessage(json.dumps(msg))
+            # print("message sent to {}".format(c.peer))

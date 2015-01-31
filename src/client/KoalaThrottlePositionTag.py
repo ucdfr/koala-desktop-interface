@@ -22,25 +22,40 @@ class ThrottlePositionTag(QWidget):
         self.plot = Qwt.QwtPlot(self)
         self.plot.setCanvasBackground(Qt.black)
         self.plot.setAxisTitle(Qwt.QwtPlot.xBottom, 'Time')
-        self.plot.setAxisScale(Qwt.QwtPlot.xBottom, 0, 10, 1)
+        self.plot.setAxisScale(Qwt.QwtPlot.xBottom, 0, 10, 10)
         self.plot.setAxisTitle(Qwt.QwtPlot.yLeft, 'Position')
-        self.plot.setAxisScale(Qwt.QwtPlot.yLeft, 0, 1, 0.1)
+        self.plot.setAxisScale(Qwt.QwtPlot.yLeft, 0, 1000, 1000)
         self.plot.replot()
 
-        self.curve = Qwt.QwtPlotCurve('')
-        self.curve.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
+        self.curvet1 = Qwt.QwtPlotCurve('')
+        self.curvet1.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
         pen = QPen(QColor('limegreen'))
         pen.setWidth(0.5)
-        self.curve.setPen(pen)
-        self.curve.attach(self.plot)
+        self.curvet1.setPen(pen)
+        self.curvet1.attach(self.plot)
 
-        self.dots = Qwt.QwtPlotCurve('')
-        self.dots.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
-        self.dots.setStyle(Qwt.QwtPlotCurve.Dots)
+        self.dotst1 = Qwt.QwtPlotCurve('')
+        self.dotst1.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
+        self.dotst1.setStyle(Qwt.QwtPlotCurve.Dots)
         dots_pen = QPen(QColor('yellow'))
-        dots_pen.setWidth(4)
-        self.dots.setPen(dots_pen)
-        self.dots.attach(self.plot)
+        dots_pen.setWidth(2)
+        self.dotst1.setPen(dots_pen)
+        self.dotst1.attach(self.plot)
+
+        self.curvet2 = Qwt.QwtPlotCurve('')
+        self.curvet2.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
+        pen = QPen(QColor('blue'))
+        pen.setWidth(0.5)
+        self.curvet2.setPen(pen)
+        self.curvet2.attach(self.plot)
+
+        self.dotst2 = Qwt.QwtPlotCurve('')
+        self.dotst2.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
+        self.dotst2.setStyle(Qwt.QwtPlotCurve.Dots)
+        dots_pen2 = QPen(QColor('magenta'))
+        dots_pen2.setWidth(2)
+        self.dotst2.setPen(dots_pen2)
+        self.dotst2.attach(self.plot)
 
         self.currentMarker = Qwt.QwtPlotMarker()
         symbol = Qwt.QwtSymbol(Qwt.QwtSymbol.Cross, QBrush(Qt.yellow), QPen(Qt.red), QSize(7, 7))
@@ -58,24 +73,32 @@ class ThrottlePositionTag(QWidget):
         self.setLayout(self.main_layout)
 
         self.xdata = []
-        self.ydata = []
+        self.t1data = []
+        self.t2data = []
         # xdata = np.arange(0, 40, 0.1)
         # ydata = map(lambda a: math.sin(a) * (math.e**(-0.1*a)), xdata)
         # self.curve.setData(xdata, ydata)
 
     def got_new_data(self, packet):
-        new_x = float(packet["time"]) / 10
-        new_y = packet["data"]
+        new_x = float(packet["time"]) / 1000
+        new_t1 = float(packet["t1"])
+        new_t2 = float(packet["t2"])
+        if new_t2 > 900:
+            print "x: %s, throttle2: %s" % (new_x, new_t2)
         self.xdata.append(new_x)
-        self.ydata.append(new_y)
-        while len(self.xdata) > 100:
+        self.t1data.append(new_t1)
+        self.t2data.append(new_t2)
+        while len(self.xdata) > 400:
             self.xdata.pop(0)
-            self.ydata.pop(0)
+            self.t1data.pop(0)
+            self.t2data.pop(0)
         self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[0] + 10, 1)
-        self.curve.setData(self.xdata, self.ydata)
-        self.dots.setData(self.xdata, self.ydata)
+        self.curvet1.setData(self.xdata, self.t1data)
+        self.dotst1.setData(self.xdata, self.t1data)
+        self.curvet2.setData(self.xdata, self.t2data)
+        self.dotst2.setData(self.xdata, self.t2data)
         self.currentMarker.setXValue(new_x)
-        self.currentMarker.setYValue(new_y)
+        self.currentMarker.setYValue(new_t1)
         self.currentMarker.attach(self.plot)
         self.plot.replot()
         self.reactor.callLater(0.5, self.remove_current_marker)
