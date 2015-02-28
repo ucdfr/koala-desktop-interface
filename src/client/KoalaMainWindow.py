@@ -5,7 +5,7 @@ import sys
 import PyQt4.Qwt5 as Qwt
 
 import KoalaMainServerStatusTag
-import KoalaThrottlePositionTag
+import KoalaPlotTag
 import dialog.ChooseServerDialog
 
 
@@ -46,10 +46,10 @@ class KoalaMain(QMainWindow):
         self.server_status_tab.set_host(host="0.0.0.0:00")
         # host_label
         self.main_tab.addTab(self.server_status_tab, "Server Status (Alt+1)")
-        self.throttle_pos_tag = KoalaThrottlePositionTag.ThrottlePositionTag(reactor=self.reactor)
+        self.throttle_pos_tag = KoalaPlotTag.KoalaThrottlePositionTag(reactor=self.reactor)
         self.main_tab.addTab(self.throttle_pos_tag, "Throttle Status (Alt+2)")
-        self.tab_3 = QWidget()
-        self.main_tab.addTab(self.tab_3, "Battery Status (Alt+3)")
+        self.tab_3 = KoalaPlotTag.KoalaBrakePositionTag(reactor=self.reactor)
+        self.main_tab.addTab(self.tab_3, "Brake Status (Alt+3)")
 
         self.main_tab.setCurrentIndex(0)
 
