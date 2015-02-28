@@ -90,10 +90,13 @@ class KoalaMain(QMainWindow):
             self.server_status_tab.set_host("0.0.0.0:00")
 
     def got_message_from_server(self, packet):
-        print "KoalaMainWindow: %s" % packet
         result = CANParser.CANParser.parse(packet)
         if isinstance(result, CANTrottleBrakeSteering.CANThrottleSignalPacket):
             self.throttle_pos_tag.got_new_data(result)
+        elif isinstance(result, CANTrottleBrakeSteering.CANBrakeSteeringAndStatusPacket):
+            self.tab_3.got_new_data(result)
+        elif isinstance(result, CANBMS.CANVoltageDataPacket):
+            self.tab_4.got_new_data(result)
 
 
     @property

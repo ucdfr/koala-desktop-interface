@@ -38,11 +38,14 @@ if __name__ == '__main__':
 
     def timed_event():
         packet = CANTrottleBrakeSteering.CANThrottleSignalPacket(0x00FF009900000000)
-        print "CANID: %s" % packet.CAN_ID
-        print packet.throttle_signal_1
-        print packet.throttle_signal_2
-        print packet.serialized()
         webSocketServer.send_data("data", packet.serialized())
+
+        brake = CANTrottleBrakeSteering.CANBrakeSteeringAndStatusPacket(0x00D400D6002D00A3)
+        webSocketServer.send_data("data", brake.serialized())
+
+        bms = CANBMS.CANVoltageDataPacket(0x0800F60034E31A0E)
+        webSocketServer.send_data("data", bms.serialized())
+
         reactor.callLater(0.5, timed_event)
 
     reactor.callLater(0.5, timed_event)

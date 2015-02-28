@@ -70,7 +70,7 @@ class KoalaWebSocketService(service.Service):
             self.connector.disconnect()
 
     def got_data(self, packet):
-        print "KoalaClientWebSocket: %s" % packet
+        # print "KoalaClientWebSocket: %s" % packet
         if packet["type"] == "data":
             self.main_UI.got_message_from_server(packet["payload"])
 

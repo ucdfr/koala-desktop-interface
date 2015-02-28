@@ -18,7 +18,7 @@ class CANParser:
             return CANThrottleSignalPacket(raw_data)
 
         elif CAN_ID == CANID.CANID_brake_steering_status:
-            return CANThrottleSignalPacket(raw_data)
+            return CANBrakeSteeringAndStatusPacket(raw_data)
 
         elif CAN_ID == CANID.CANID_pack_status:
             return CANPackStatusPacket(raw_data)

@@ -108,13 +108,11 @@ class KoalaThrottlePositionTag(KoalaPlotBaseTag):
             self.plot_first_width = self.plot.width()
         new_t1 = packet.throttle_signal_1
         new_t2 = packet.throttle_signal_2
-        if new_t2 > 900:
-            print "x: %s, throttle2: %s" % (new_x, new_t2)
         self.xdata.append(new_x)
         self.t1data.append(new_t1)
         self.t2data.append(new_t2)
 
-        if len(self.xdata) > 10:
+        if self.xdata[-1] > 10:
             self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[-1], 1)
             self.plot.setFixedWidth(self.plot_first_width * self.xdata[-1] / 10)
             self.scroll.ensureVisible(self.plot.width(), 0, 0, 0)
@@ -150,12 +148,15 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         self.side_panel.addWidget(self.error_flags)
 
         self.main_layout.addLayout(self.side_panel)
-        self.set_error_flags(0xff)
+        self.set_error_flags(0x00)
         self.set_steering_position(0)
 
     def set_steering_position(self, position):
-        pass
-        self.steering_wheel.setText("Steering position: %s" % position)
+        direction = "right"
+        if position < 0:
+            direction = "left"
+            position = - position
+        self.steering_wheel.setText("Steering position: %s %s degrees" % (direction, position))
 
     def set_error_flags(self, flags):
         self.error_flags.clear()
@@ -209,7 +210,7 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         self.t1data.append(new_t1)
         self.t2data.append(new_t2)
 
-        if len(self.xdata) > 10:
+        if self.xdata[-1] > 10:
             self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[-1], 1)
             self.plot.setFixedWidth(self.plot_first_width * self.xdata[-1] / 10)
             self.scroll.ensureVisible(self.plot.width(), 0, 0, 0)
@@ -222,3 +223,9 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         self.currentMarker.attach(self.plot)
         self.plot.replot()
         self.reactor.callLater(0.5, self.remove_current_marker)
+
+        steering = packet.steering_position - 90
+        self.set_steering_position(steering)
+        err_flag = packet.error_flags
+        self.set_error_flags(err_flag)
+        print "%s %s %s %s" % (packet.brake_pressure_1, packet.brake_pressure_2, packet.steering_position, packet.error_flags)
