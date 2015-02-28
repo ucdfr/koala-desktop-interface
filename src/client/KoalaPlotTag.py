@@ -108,10 +108,13 @@ class KoalaThrottlePositionTag(KoalaPlotBaseTag):
             self.plot_first_width = self.plot.width()
         new_t1 = packet.throttle_signal_1
         new_t2 = packet.throttle_signal_2
+        # print "t1 = %s, t2 = %s" % (new_t1, new_t2)
         self.xdata.append(new_x)
         self.t1data.append(new_t1)
         self.t2data.append(new_t2)
 
+        self.leftAxis.setAxisScale(Qwt.QwtPlot.yLeft, 0, 1000, 1000)
+        self.plot.setAxisScale(Qwt.QwtPlot.yLeft, 0, 1000, 1000)
         if self.xdata[-1] > 10:
             self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[-1], 1)
             self.plot.setFixedWidth(self.plot_first_width * self.xdata[-1] / 10)
@@ -210,6 +213,8 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         self.t1data.append(new_t1)
         self.t2data.append(new_t2)
 
+        self.leftAxis.setAxisScale(Qwt.QwtPlot.yLeft, 0, 1000, 1000)
+        self.plot.setAxisScale(Qwt.QwtPlot.yLeft, 0, 1000, 1000)
         if self.xdata[-1] > 10:
             self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[-1], 1)
             self.plot.setFixedWidth(self.plot_first_width * self.xdata[-1] / 10)
@@ -228,4 +233,4 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         self.set_steering_position(steering)
         err_flag = packet.error_flags
         self.set_error_flags(err_flag)
-        print "%s %s %s %s" % (packet.brake_pressure_1, packet.brake_pressure_2, packet.steering_position, packet.error_flags)
+        # print "%s %s %s %s" % (packet.brake_pressure_1, packet.brake_pressure_2, packet.steering_position, packet.error_flags)

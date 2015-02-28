@@ -13,6 +13,7 @@ from server.KoalaServerWebSocket import *
 from server.KoalaServerTCP import *
 
 from KSerialUtil.CANPacket import *
+from server.fakeDataGenerator import *
 
 if __name__ == '__main__':
     log.startLogging(sys.stdout)
@@ -36,14 +37,15 @@ if __name__ == '__main__':
     #
     # XBee.init()
 
+    fakeDataGenerator = fakeDataGenerator()
     def timed_event():
-        packet = CANTrottleBrakeSteering.CANThrottleSignalPacket(0x00FF009900000000)
-        webSocketServer.send_data("data", packet.serialized())
+        throttle = fakeDataGenerator.generate_throttle()
+        webSocketServer.send_data("data", throttle.serialized())
 
-        brake = CANTrottleBrakeSteering.CANBrakeSteeringAndStatusPacket(0x00D400D6002D00A3)
+        brake = fakeDataGenerator.generate_brake()
         webSocketServer.send_data("data", brake.serialized())
 
-        bms = CANBMS.CANVoltageDataPacket(0x0800F60034E31A0E)
+        bms = fakeDataGenerator.generate_voltage()
         webSocketServer.send_data("data", bms.serialized())
 
         reactor.callLater(0.5, timed_event)
