@@ -1,7 +1,8 @@
 __author__ = 'yilu'
 
-from CANBase import *
 from enum import Enum
+
+from src.KSerialUtil.CANPacket.CANBase import *
 
 
 class CANPackStatusPacketErrorFlag(Enum):
@@ -26,31 +27,31 @@ class CANPackStatusPacketErrorFlag(Enum):
 
 class CANPackStatusPacket(CANBasePacket):
     def __init__(self, data):
-        CANBasePacket.__init__(self)
+        CANBasePacket.__init__(self, data)
         self.CAN_ID = CANID.CANID_pack_status
-        self.SOC_percent =                  data & 0xFF00000000000000
-        self.AH_used_since_full_charge =    data & 0x00FF000000000000
-        self.BMS_status_bits =              data & 0x0000FFFF00000000
-        self.number_of_charge_cycles =      data & 0x00000000FFFF0000
-        self.pack_balance_delta_mV =        data & 0x000000000000FFFF
+        self.SOC_percent =                  (data & 0xFF00000000000000) >> 56
+        self.AH_used_since_full_charge =    (data & 0x00FF000000000000) >> 48
+        self.BMS_status_bits =              (data & 0x0000FFFF00000000) >> 32
+        self.number_of_charge_cycles =      (data & 0x00000000FFFF0000) >> 16
+        self.pack_balance_delta_mV =        (data & 0x000000000000FFFF) >> 0
 
 
 class CANVoltageDataPacket(CANBasePacket):
     def __init__(self, data):
-        CANBasePacket.__init__(self)
+        CANBasePacket.__init__(self, data)
         self.CAN_ID = CANID.CANID_voltage_data
-        self.cell_index =                       data & 0xFF00000000000000
-        self.cell_voltage_mV =                  data & 0x00FFFF0000000000
-        self.pack_voltage_mV =                  data & 0x000000FFFFFFFF00
-        self.insulation_condition_from_bender = data & 0x00000000000000FF
+        self.cell_index =                       (data & 0xFF00000000000000) >> 56
+        self.cell_voltage_mV =                  (data & 0x00FFFF0000000000) >> 40
+        self.pack_voltage_mV =                  (data & 0x000000FFFFFFFF00) >> 8
+        self.insulation_condition_from_bender = (data & 0x00000000000000FF) >> 0
 
 
 class CANTemperatureDataCurrentPacket(CANBasePacket):
     def __init__(self, data):
-        CANBasePacket.__init__(self)
+        CANBasePacket.__init__(self, data)
         self.CAN_ID = CANID.CANID_temp_data_current
-        self.sensor_index =         data & 0xFF00000000000000
-        self.temp_value_C =         data & 0x00FF000000000000
-        self.highest_temp_value =   data & 0x0000FF0000000000
-        self.lowest_temp_value =    data & 0x000000FF00000000
-        self.discharge_current_mA = data & 0x00000000FFFFFFFF
+        self.sensor_index =         (data & 0xFF00000000000000) >> 56
+        self.temp_value_C =         (data & 0x00FF000000000000) >> 48
+        self.highest_temp_value =   (data & 0x0000FF0000000000) >> 40
+        self.lowest_temp_value =    (data & 0x000000FF00000000) >> 32
+        self.discharge_current_mA = (data & 0x00000000FFFFFFFF) >> 0

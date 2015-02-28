@@ -1,16 +1,17 @@
 __author__ = 'yilu'
 
-from CANBase import *
 from enum import Enum
+
+from src.KSerialUtil.CANPacket.CANBase import *
 
 
 class CANThrottleSignalPacket(CANBasePacket):
     def __init__(self, data):
-        CANBasePacket.__init__(self)
+        CANBasePacket.__init__(self, data)
         self.CAN_ID = CANID.CANID_throttle_sig
-        self.throttle_signal_1 =    data & 0xFFFF000000000000
-        self.throttle_signal_2 =    data & 0x0000FFFF00000000
-        padding =                   data & 0x00000000FFFFFFFF
+        self.throttle_signal_1 =    (data & 0xFFFF000000000000) >> 48
+        self.throttle_signal_2 =    (data & 0x0000FFFF00000000) >> 32
+        padding =                   (data & 0x00000000FFFFFFFF) >> 0
 
         if padding != 0:
             #if padding is not zero reset everything
@@ -33,9 +34,9 @@ class CANBrakeSteeringAndStatusErrorFlag(Enum):
 
 class CANBrakeSteeringAndStatusPacket(CANBasePacket):
     def __init__(self, data):
-        CANBasePacket.__init__(self)
+        CANBasePacket.__init__(self, data)
         self.CAN_ID = CANID.CANID_brake_steering_status
-        self.brake_pressure_1 =     data & 0xFFFF000000000000
-        self.brake_pressure_2 =     data & 0x0000FFFF00000000
-        self.steering_position =    data & 0x00000000FFFF0000
-        self.error_flags =          data & 0x000000000000FFFF
+        self.brake_pressure_1 =     (data & 0xFFFF000000000000) >> 48
+        self.brake_pressure_2 =     (data & 0x0000FFFF00000000) >> 32
+        self.steering_position =    (data & 0x00000000FFFF0000) >> 16
+        self.error_flags =          (data & 0x000000000000FFFF) >> 0

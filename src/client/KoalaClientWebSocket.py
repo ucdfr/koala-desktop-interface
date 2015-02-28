@@ -70,7 +70,9 @@ class KoalaWebSocketService(service.Service):
             self.connector.disconnect()
 
     def got_data(self, packet):
-        self.main_UI.got_message_from_server(packet)
+        print "KoalaClientWebSocket: %s" % packet
+        if packet["type"] == "data":
+            self.main_UI.got_message_from_server(packet["payload"])
 
     def connection_established(self):
         self.main_UI.update_server_status(connected=True, host=self.site, port=self.port)

@@ -1,7 +1,8 @@
 __author__ = 'yilu'
 
-from CANBase import *
 from enum import Enum
+
+from src.KSerialUtil.CANPacket.CANBase import *
 
 
 class CANSystemStatePacketErrorFlag(Enum):
@@ -13,9 +14,9 @@ class CANSystemStatePacketErrorFlag(Enum):
 
 class CANSystemStatePacket(CANBasePacket):
     def __init__(self, data):
-        CANBasePacket.__init__(self)
+        CANBasePacket.__init__(self, data)
         self.CAN_ID = CANID.CANID_system_state
-        self.state_flags =                      data & 0xFFFF000000000000
-        self.maximum_battery_current =          data & 0x0000FFFF00000000
-        self.maximum_motor_current_forward =    data & 0x00000000FFFF0000
-        self.maximum_motor_current_backward =   data & 0x000000000000FFFF
+        self.state_flags =                      (data & 0xFFFF000000000000) >> 48
+        self.maximum_battery_current =          (data & 0x0000FFFF00000000) >> 32
+        self.maximum_motor_current_forward =    (data & 0x00000000FFFF0000) >> 16
+        self.maximum_motor_current_backward =   (data & 0x000000000000FFFF) >> 0

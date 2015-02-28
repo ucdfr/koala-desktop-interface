@@ -60,13 +60,11 @@ class BroadcastServerFactory(WebSocketServerFactory):
     #     self.broadcast(json.dumps(packet))
     #     # self.reactor.callLater(1, self.send_fake_data)
 
-    def send_data(self, throttle1, throttle2, time):
+    def send_data(self, type, payload):
         # print "sending data"
         packet = {
-            "time": time,
-            "t1": throttle1,
-            "t2": throttle2,
-            "type": "throttle"
+            "type": type,
+            "payload": payload
         }
         self.broadcast(packet)
 

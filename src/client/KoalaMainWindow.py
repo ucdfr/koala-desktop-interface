@@ -8,6 +8,7 @@ import KoalaMainServerStatusTag
 import KoalaPlotTag
 import KoalaBatteryInfoTag
 import dialog.ChooseServerDialog
+from src.KSerialUtil.CANPacket import *
 
 
 class KoalaMain(QMainWindow):
@@ -89,8 +90,10 @@ class KoalaMain(QMainWindow):
             self.server_status_tab.set_host("0.0.0.0:00")
 
     def got_message_from_server(self, packet):
-        if packet["type"] == "throttle":
-            self.throttle_pos_tag.got_new_data(packet)
+        print "KoalaMainWindow: %s" % packet
+        result = CANParser.CANParser.parse(packet)
+        if isinstance(result, CANTrottleBrakeSteering.CANThrottleSignalPacket):
+            self.throttle_pos_tag.got_new_data(result)
 
 
     @property

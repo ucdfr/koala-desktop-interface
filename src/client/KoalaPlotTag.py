@@ -6,6 +6,7 @@ import PyQt4.Qwt5 as Qwt
 import KoalaSteeringWheelWidget
 import math
 import numpy as np
+from src.KSerialUtil.CANPacket.CANTrottleBrakeSteering import *
 
 
 class KoalaPlotBaseTag(QWidget):
@@ -38,6 +39,7 @@ class KoalaPlotBaseTag(QWidget):
         self.plot.setAxisScale(Qwt.QwtPlot.xBottom, 0, x_scale, x_scale)
         self.plot.enableAxis(Qwt.QwtPlot.yLeft, False)
         self.plot.replot()
+        self.plot_first_width = 0
 
         self.curvet1 = Qwt.QwtPlotCurve('')
         # self.curvet1.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)
@@ -76,45 +78,18 @@ class KoalaPlotBaseTag(QWidget):
         self.currentMarker.setLineStyle(Qwt.QwtPlotMarker.NoLine)
         self.currentMarker.attach(self.plot)
 
-        scroll = QScrollArea()
-        scroll.setWidget(self.plot)
+        self.scroll = QScrollArea()
+        self.scroll.setWidget(self.plot)
         # plot.setFixedWidth(2000)
-        scroll.setWidgetResizable(True)
+        self.scroll.setWidgetResizable(True)
         # scroll.setFixedHeight(500)
         # scroll.setBaseSize(300, 500)
-        self.main_layout.addWidget(scroll)
+        self.main_layout.addWidget(self.scroll)
         self.setLayout(self.main_layout)
 
         self.xdata = []
         self.t1data = []
         self.t2data = []
-        # xdata = np.arange(0, 40, 0.1)
-        # ydata = map(lambda a: math.sin(a) * (math.e**(-0.1*a)), xdata)
-        # self.curve.setData(xdata, ydata)
-
-    # def got_new_data(self, packet):
-    #     new_x = float(packet["time"]) / 1000
-    #     new_t1 = float(packet["t1"])
-    #     new_t2 = float(packet["t2"])
-    #     if new_t2 > 900:
-    #         print "x: %s, throttle2: %s" % (new_x, new_t2)
-    #     self.xdata.append(new_x)
-    #     self.t1data.append(new_t1)
-    #     self.t2data.append(new_t2)
-    #     while len(self.xdata) > 500:
-    #         self.xdata.pop(0)
-    #         self.t1data.pop(0)
-    #         self.t2data.pop(0)
-    #     self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[0] + 10, 1)
-    #     self.curvet1.setData(self.xdata, self.t1data)
-    #     self.dotst1.setData(self.xdata, self.t1data)
-    #     self.curvet2.setData(self.xdata, self.t2data)
-    #     self.dotst2.setData(self.xdata, self.t2data)
-    #     self.currentMarker.setXValue(new_x)
-    #     self.currentMarker.setYValue(new_t1)
-    #     self.currentMarker.attach(self.plot)
-    #     self.plot.replot()
-    #     self.reactor.callLater(0.5, self.remove_current_marker)
 
     def remove_current_marker(self):
         self.currentMarker.detach()
@@ -126,19 +101,23 @@ class KoalaThrottlePositionTag(KoalaPlotBaseTag):
         super(KoalaThrottlePositionTag, self).__init__(reactor=reactor, x_axis_name="Time", y_axis_name="Throttle Position")
 
     def got_new_data(self, packet):
-        new_x = float(packet["time"]) / 1000
-        new_t1 = float(packet["t1"])
-        new_t2 = float(packet["t2"])
+        new_x = 0
+        if len(self.xdata) != 0:
+            new_x = self.xdata[-1] + 0.1
+        else:
+            self.plot_first_width = self.plot.width()
+        new_t1 = packet.throttle_signal_1
+        new_t2 = packet.throttle_signal_2
         if new_t2 > 900:
             print "x: %s, throttle2: %s" % (new_x, new_t2)
         self.xdata.append(new_x)
         self.t1data.append(new_t1)
         self.t2data.append(new_t2)
-        while len(self.xdata) > 500:
-            self.xdata.pop(0)
-            self.t1data.pop(0)
-            self.t2data.pop(0)
-        self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[0] + 10, 1)
+
+        if len(self.xdata) > 10:
+            self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[-1], 1)
+            self.plot.setFixedWidth(self.plot_first_width * self.xdata[-1] / 10)
+            self.scroll.ensureVisible(self.plot.width(), 0, 0, 0)
         self.curvet1.setData(self.xdata, self.t1data)
         self.dotst1.setData(self.xdata, self.t1data)
         self.curvet2.setData(self.xdata, self.t2data)
@@ -216,6 +195,30 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         if flags & 0x0040:
             self.error_flags.setItem(8, 1, QTableWidgetItem("Soft throttle/brake plausibility"))
 
-
     def got_new_data(self, packet):
-        pass
+        new_x = 0
+        if len(self.xdata) != 0:
+            new_x = self.xdata[-1] + 0.1
+        else:
+            self.plot_first_width = self.plot.width()
+        new_t1 = packet.brake_pressure_1
+        new_t2 = packet.brake_pressure_2
+        if new_t2 > 900:
+            print "x: %s, throttle2: %s" % (new_x, new_t2)
+        self.xdata.append(new_x)
+        self.t1data.append(new_t1)
+        self.t2data.append(new_t2)
+
+        if len(self.xdata) > 10:
+            self.plot.setAxisScale(Qwt.QwtPlot.xBottom, self.xdata[0], self.xdata[-1], 1)
+            self.plot.setFixedWidth(self.plot_first_width * self.xdata[-1] / 10)
+            self.scroll.ensureVisible(self.plot.width(), 0, 0, 0)
+        self.curvet1.setData(self.xdata, self.t1data)
+        self.dotst1.setData(self.xdata, self.t1data)
+        self.curvet2.setData(self.xdata, self.t2data)
+        self.dotst2.setData(self.xdata, self.t2data)
+        self.currentMarker.setXValue(new_x)
+        self.currentMarker.setYValue(new_t1)
+        self.currentMarker.attach(self.plot)
+        self.plot.replot()
+        self.reactor.callLater(0.5, self.remove_current_marker)

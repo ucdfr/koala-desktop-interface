@@ -1,9 +1,7 @@
 __author__ = 'yilu'
 
-from enum import Enum
 
-
-class CANID(Enum):
+class CANID(object):
     CANID_INVALID = 0xFFF,
     CANID_throttle_sig = 0x205,
     CANID_brake_steering_status = 0x305, # TODO: Fake
@@ -19,5 +17,12 @@ class CANID(Enum):
 
 
 class CANBasePacket:
-    def __init__(self):
+    def __init__(self, data):
         self.CAN_ID = CANID.CANID_INVALID
+        self.raw_data = data
+
+    def serialized(self):
+        return {
+            "type": self.CAN_ID[0],
+            "data": self.raw_data
+        }
