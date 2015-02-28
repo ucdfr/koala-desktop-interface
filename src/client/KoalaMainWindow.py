@@ -6,6 +6,7 @@ import PyQt4.Qwt5 as Qwt
 
 import KoalaMainServerStatusTag
 import KoalaPlotTag
+import KoalaBatteryInfoTag
 import dialog.ChooseServerDialog
 
 
@@ -51,6 +52,9 @@ class KoalaMain(QMainWindow):
         self.tab_3 = KoalaPlotTag.KoalaBrakePositionTag(reactor=self.reactor)
         self.main_tab.addTab(self.tab_3, "Brake Status (Alt+3)")
 
+        self.tab_4 = KoalaBatteryInfoTag.BatteryInfoTag(reactor=self.reactor)
+        self.main_tab.addTab(self.tab_4, "Battery Status (Alt+4")
+
         self.main_tab.setCurrentIndex(0)
 
         self.setCentralWidget(self.main_tab)
@@ -72,6 +76,8 @@ class KoalaMain(QMainWindow):
                 self.main_tab.setCurrentIndex(1)
             elif QKeyEvent.key() == ord('3'):
                 self.main_tab.setCurrentIndex(2)
+            elif QKeyEvent.key() == ord('4'):
+                self.main_tab.setCurrentIndex(3)
             QKeyEvent.accept()
 
     def update_server_status(self, connected, host, port):

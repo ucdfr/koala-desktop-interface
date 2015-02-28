@@ -3,7 +3,7 @@ __author__ = 'yilu'
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import PyQt4.Qwt5 as Qwt
-# import KoalaSteeringWheelWidget
+import KoalaSteeringWheelWidget
 import math
 import numpy as np
 
@@ -155,7 +155,12 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         super(KoalaBrakePositionTag, self).__init__(reactor=reactor, x_axis_name="Time", y_axis_name="Brake Position")
 
         self.side_panel = QVBoxLayout()
+
+        #steering Wheel view
         self.steering_wheel = QLabel()
+        self.steering_wheel.setFixedWidth(220)
+        self.steering_wheel.setFixedHeight(220)
+
         self.error_flags = QTableWidget(9, 2)
         #Disable editting
         self.error_flags.setEditTriggers(QAbstractItemView.EditTrigger(0))
@@ -170,6 +175,7 @@ class KoalaBrakePositionTag(KoalaPlotBaseTag):
         self.set_steering_position(0)
 
     def set_steering_position(self, position):
+        pass
         self.steering_wheel.setText("Steering position: %s" % position)
 
     def set_error_flags(self, flags):

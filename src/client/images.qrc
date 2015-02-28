@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/images">
+    <file alias='steeringWheel.png'>steeringWheel.png</file>
+    <file alias='battery.png'>battery.png</file>
+  </qresource>
+</RCC>
