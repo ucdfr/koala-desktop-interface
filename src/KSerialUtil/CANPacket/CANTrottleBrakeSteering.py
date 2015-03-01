@@ -1,7 +1,5 @@
 __author__ = 'yilu'
 
-from enum import Enum
-
 from src.KSerialUtil.CANPacket.CANBase import *
 
 
@@ -21,7 +19,7 @@ class CANThrottleSignalPacket(CANBasePacket):
             self.throttle_signal_2 = 0
 
 
-class CANBrakeSteeringAndStatusErrorFlag(Enum):
+class CANBrakeSteeringAndStatusErrorFlag(object):
     CANBSASEF_no_error =                            0x0000,
     CANBSASEF_throttle_1_out_of_range =             0x0001,
     CANBSASEF_throttle_2_out_of_range =             0x0002,

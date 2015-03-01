@@ -1,11 +1,9 @@
 __author__ = 'yilu'
 
-from enum import Enum
-
 from src.KSerialUtil.CANPacket.CANBase import *
 
 
-class CANPackStatusPacketErrorFlag(Enum):
+class CANPackStatusPacketErrorFlag(object):
     CANPSPEF_no_error =                         0x0000,
     CANPSPEF_charge_mode =                      0x0001,
     CANPSPEF_pack_temperature_limit_exceeded =  0x0002,

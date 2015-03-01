@@ -38,8 +38,19 @@ class KoalaPlotBaseTag(QWidget):
         self.plot.setAxisTitle(Qwt.QwtPlot.xBottom, x_axis_name)
         self.plot.setAxisScale(Qwt.QwtPlot.xBottom, 0, x_scale, x_scale)
         self.plot.enableAxis(Qwt.QwtPlot.yLeft, False)
+
+        plot_grid = Qwt.QwtPlotGrid()
+        plot_grid.enableX(True)
+        plot_grid.enableY(True)
+        plot_grid.enableXMin(True)
+        plot_grid.enableYMin(True)
+        plot_grid.setMajPen(QPen(Qt.gray, 1, Qt.SolidLine))
+        plot_grid.setMinPen(QPen(Qt.darkGray, 1, Qt.SolidLine))
+        plot_grid.attach(self.plot)
+
         self.plot.replot()
         self.plot_first_width = 0
+
 
         self.curvet1 = Qwt.QwtPlotCurve('')
         # self.curvet1.setRenderHint(Qwt.QwtPlotItem.RenderAntialiased)

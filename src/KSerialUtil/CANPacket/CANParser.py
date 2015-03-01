@@ -4,6 +4,7 @@ from CANBase import *
 from CANBMS import *
 from CANDashboard import *
 from CANTrottleBrakeSteering import *
+from CANSevconGen4 import *
 
 
 class CANParser:
@@ -33,19 +34,19 @@ class CANParser:
             return CANSystemStatePacket(raw_data)
 
         elif CAN_ID == CANID.CANID_TPDO1_current_control:
-            return CANBasePacket(raw_data)
+            return CANTPDO1CurrentControlPacket(raw_data)
 
         elif CAN_ID == CANID.CANID_TPDO2_controls:
-            return CANBasePacket(raw_data)
+            return CANTPDO2ControlsPacket(raw_data)
 
         elif CAN_ID == CANID.CANID_TPDO3_operation_params:
-            return CANBasePacket(raw_data)
+            return CANTPDO3OperationParamsPacket(raw_data)
 
         elif CAN_ID == CANID.CANID_TPDO4_sensors:
-            return CANBasePacket(raw_data)
+            return CANTPDO4SensorsPacket(raw_data)
 
         elif CAN_ID == CANID.CANID_TPDO5_motor_throttle:
-            return CANBasePacket(raw_data)
+            return CANTPDO5MotorAndThrottlePacket(raw_data)
 
         #fallback if type is not recognized
         print "CANParser: type %s not recognized, returning CANBasePacket" % CAN_ID
