@@ -33,14 +33,16 @@ class KoalaWebSocketClientProtocol(WebSocketClientProtocol):
 class KoalaWebSocketClientFactory(WebSocketClientFactory):
     def __init__(self, *args, **kwargs):
         WebSocketClientFactory.__init__(self, *args, **kwargs)
+        self.protocol = None
 
     def buildProtocol(self, addr):
-        protocol = KoalaWebSocketClientProtocol()
-        protocol.factory = self
-        return protocol
+        self.protocol = KoalaWebSocketClientProtocol()
+        self.protocol.factory = self
+        return self.protocol
 
-    # def stopFactory(self):
-    #     self.protocol.close()
+    # def stop_connection(self):
+    #     if self.protocol:
+    #         self.protocol.sendClose()
 
 
 class KoalaWebSocketService(service.Service):
@@ -58,19 +60,22 @@ class KoalaWebSocketService(service.Service):
     def start_service(self):
         print "ws://%s:%d" % (self.site, self.port)
         self.factory = KoalaWebSocketClientFactory("ws://%s:%d" % (self.site, self.port), debug=self.debug, reactor=self.reactor)
-        # self.factory.protocol = KoalaWebSocketClientProtocol
-        # self.factory.protocol = WebSocketClientProtocol
-        # factory.startFactory()
         self.connector = self.reactor.connectTCP(self.site, self.port, self.factory)
 
-    def stop_service(self):
+    def stop_service(self, callback):
         print "\nShutting down client"
-        # self.connector.stopFactory()
         if self.connector:
-            self.connector.disconnect()
+            print "Disconnecting the connector"
+            self.factory.protocol.sendClose()
+
+            def on_protocol_close(wasClean, code, reason):
+                print "on protocol close"
+                self.connector.disconnect()
+                if callback:
+                    callback()
+            self.factory.protocol.onClose = on_protocol_close
 
     def got_data(self, packet):
-        # print "KoalaClientWebSocket: %s" % packet
         if packet["type"] == "data":
             self.main_UI.got_message_from_server(packet["payload"])
 

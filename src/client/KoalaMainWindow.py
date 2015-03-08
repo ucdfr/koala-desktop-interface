@@ -28,7 +28,7 @@ class KoalaMain(QMainWindow):
         '''
         koala_menu = menu_bar.addMenu('&Koala')
         close_action = QAction('Close', self)
-        close_action.setShortcut('Ctrl+Q')
+        # close_action.setShortcut('Ctrl+Q')
         close_action.setStatusTip('Close Notepad')
         close_action.triggered.connect(self.__close_app)
         koala_menu.addAction(close_action)
@@ -62,7 +62,12 @@ class KoalaMain(QMainWindow):
 
     def __close_app(self):
         self.close()
-        self.reactor.stop()
+
+        def service_closed():
+            # Need to invoke the stop method in Twisted reactor main loop
+            self.reactor.callFromThread(self.reactor.stop)
+
+        self.web_socket_service.stop_service(service_closed)
 
     def __connect_to_server(self):
         if self.web_socket_service is not None:
